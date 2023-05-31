@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Homework Grader</title>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .btn-bd-primary {
+            --bs-btn-font-weight: 600;
+            --bs-btn-color: #20254c;
+            --bs-btn-bg: #ecedea;
+            --bs-btn-hover-bg: #9eb2d2;
+            --bs-btn-active-bg: #424d89;
+            --bs-btn-border-color: var(--bs-btn-bg);
+            --bs-btn-hover-color: var(--bs-btn-color);
+            --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
+            --bs-btn-focus-shadow-rgb: var(--bs-btn-bg);
+            --bs-btn-active-color: var(--bs-btn-hover-color);
+            --bs-btn-active-border-color: var(--bs-btn-active-bg);
+        }
+    </style>
+</head>
+<body>
+
+<div class="d-flex" style="width: 100%;">
+    <div class="d-flex flex-column float-start" style="height: 100vh; overflow-y: auto;">
+        <button class="btn btn-bd-primary m-2"
+                type="button" data-bs-toggle="offcanvas" data-bs-target="#table-of-content" aria-controls="table-of-content"
+                aria-label="Toggle navigation">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75
+              2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0
+              0 .196-.12l6.813-6.814z"/>
+              <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1
+              0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+            </svg>
+        </button>
+        <button type="button" class="btn btn-bd-primary m-2" data-bs-toggle="modal" data-bs-target="#student-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-link-45deg" viewBox="0 0 16 16">
+                <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002
+                1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83
+                2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+            </svg>
+        </button>
+        <button onclick="window.location.href = '/'" class="btn btn-bd-primary m-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-backspace" viewBox="0 0 16 16">
+                <path d="M5.83 5.146a.5.5 0 0 0 0 .708L7.975 8l-2.147 2.146a.5.5 0 0 0 .707.708l2.147-2.147 2.146
+                2.147a.5.5 0 0 0 .707-.708L9.39 8l2.146-2.146a.5.5 0 0 0-.707-.708L8.683 7.293 6.536 5.146a.5.5 0 0 0-.707 0z"/>
+                <path d="M13.683 1a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7.08a2 2 0 0 1-1.519-.698L.241 8.65a1 1 0 0 1
+                0-1.302L5.084 1.7A2 2 0 0 1 6.603 1h7.08zm-7.08 1a1 1 0 0 0-.76.35L1 8l4.844 5.65a1 1 0 0 0
+                .759.35h7.08a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1h-7.08z"/>
+            </svg>
+        </button>
+    </div>
+
+    <iframe id="article" class="flex-fill" style="height: 100vh;"
+            src="/grade-file?id={{ id }}&config={{ config }}">
+    </iframe>
+</div>
+
+<div class="offcanvas offcanvas-start d-flex flex-column justify-content-between"
+     tabindex="-1" id="table-of-content" aria-labelledby="table-of-content-label">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="table-of-content-label">{{ title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body flex-fill">
+        <form action="/grade-jump" method="post" class="d-flex">
+            <select class="form-select my-2" name="id" required>
+                {% for file_score in filelist %}
+                    <option value="{{ loop.index0 }}"
+                            {% if loop.index0 == id %}selected style="font-weight: bold" {% endif %}
+                            class="{% if file_score.1 %}text-success{% else %}text-danger{% endif %}"
+                            >
+                    {{ file_score.0 }}
+                    </option>
+                {% endfor %}
+            </select>
+            <input name="config" value="{{ config }}" type="hidden">
+            <input type="submit" class="btn btn-bd-primary m-2" value="Jump" />
+        </form>
+    <hr>
+        <form action="/grade-update" method="post">
+            <input name="config" value="{{ config }}" type="hidden">
+            <input name="student-id" value="{{ id }}" type="hidden">
+            {% for question in rubric %}
+                {% set q = loop.index0 %}
+                {% set q_id = question.q_id %}
+                <p><b>{{ question.caption }}</b></p>
+                <div class="d-flex flex-gap-1">
+                    {% if current_score %}
+                        {% if current_score[q].1 %}
+                            <select class="form-select my-2" name="{{ q_id }}" required>
+                                {% for level in question.assessment %}
+                                    <option value="{{ level.score }}"
+                                            {% if current_score[q].0 == level.score %} selected {% endif %}>
+                                        {{ level.score }}
+                                    </option>
+                                {% endfor %}
+                                <option value="c">customized:</option>
+                            </select>
+                            <input class="form-control m-2" type="number" name="{{ q_id }}-c" step="0.01" />
+                        {% else %}
+                            <select class="form-select my-2" name="{{ q_id }}" required>
+                                {% for level in question.assessment %}
+                                    <option value="{{ level.score }}">{{ level.score }}</option>
+                                {% endfor %}
+                                <option value="c" selected>customized:</option>
+                            </select>
+                            <input class="form-control m-2" type="number" name="{{ q_id }}-c" step="0.01"
+                                   value="{{ current_score[q].0 }}" />
+                        {% endif %}
+                    {% else %}
+                        <select class="form-select my-2" name="{{ q_id }}" required>
+                            {% for level in question.assessment %}
+                                <option value="{{ level.score }}">{{ level.score }}</option>
+                            {% endfor %}
+                            <option value="c">customized:</option>
+                        </select>
+                        <input class="form-control m-2" type="number" name="{{ q_id }}-c" step="0.01" />
+                    {% endif %}
+                </div>
+
+                <table class="table table-sm table-borderless">
+                    <tbody>
+                    {% for level in question.assessment %}
+                        <tr><td class="fw-bold">{{ level.score }}'</td><td>{{ level.definition }}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endfor %}
+            <div class="text-center d-flex">
+                <input type="submit" name="action" class="btn btn-bd-primary m-2" value="Save">
+                {% if id < filelist | length - 1 %}
+                    <input type="submit" name="action" class="btn btn-bd-primary m-2" value="Save and continue">
+                {% else %}
+                    <button type="button" class="btn btn-bd-primary m-2" disabled>It is the last file.</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    <div class="mx-3 my-0">
+        <hr>
+        <p class="text-secondary">Powered by
+            <a href="https://github.com/cloudy-sfu" style="text-decoration: none;" target="_blank">
+                cloudy-sfu
+            </a>
+            , 2023.
+        </p>
+    </div>
+</div>
+
+<div class="modal fade" id="student-link" tabindex="-1" aria-labelledby="student-link-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="student-link-label">Source</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <a href="/grade-file?config={{ config }}" download style="text-decoration: none;">Download</a>
+                    the source submission.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
