@@ -123,7 +123,6 @@
                         <input class="form-control m-2" type="number" name="{{ q_id }}-c" step="0.01" />
                     {% endif %}
                 </div>
-
                 <table class="table table-sm table-borderless">
                     <tbody>
                     {% for level in question.assessment %}
@@ -132,6 +131,8 @@
                     </tbody>
                 </table>
             {% endfor %}
+            <p><b>Note</b></p>
+            <textarea class="form-control" name="note" rows="3">{{ note }}</textarea>
             <div class="text-center d-flex">
                 <input type="submit" name="action" class="btn btn-bd-primary m-2" value="Save">
                 {% if id < filelist | length - 1 %}

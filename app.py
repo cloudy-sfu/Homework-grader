@@ -1,20 +1,19 @@
 import re
-
 import pandas as pd
 from flask import Flask, render_template, request, send_file, redirect
 import os
 import json
 
 app = Flask(__name__)
-assignments = 'templates/assignments'
+assignments = './assignments/'
 os.makedirs(assignments, exist_ok=True)
-supported_file_types = ('.htm', '.html', '.pdf')
+supported_file_types = ('.htm', '.html', '.pdf', '.txt')
 
 
 @app.route('/', methods=['GET'])
 def index():  # put application's code here
     existed_configs = [fn for fn in os.listdir(assignments) if os.path.splitext(fn)[1] == '.json']
-    return render_template("index.html", existed_configs=existed_configs)
+    return render_template('index.html', existed_configs=existed_configs)
 
 
 @app.route('/delete-config', methods=['GET'])
@@ -129,12 +128,14 @@ def grade():
     id_ = config.get('id')
     filenames = config.get('filenames')
     n = len(filenames)
+    note = ''
     try:
         scores = config['scores']
         filelist = [(filenames[i], str(i) in scores.keys()) for i in range(n)]
         id_str = str(id_)
         if id_str in scores.keys():
             raw_scores = config['scores'][id_str]
+            note = raw_scores.pop()
             questions = config['rubric']
             scores = []
             for s, q in zip(raw_scores, questions):
@@ -147,7 +148,7 @@ def grade():
     return render_template(
         'grade.html',
         title=config.get('name'), id=id_, config=config_name, rubric=config.get('rubric'),
-        current_score=scores, filelist=filelist,
+        current_score=scores, filelist=filelist, note=note,
     )
 
 
@@ -205,6 +206,8 @@ def grade_submit():
             else:
                 score = float(raw_score)
             config['scores'][id_str].append(score)
+        note = request.form.get('note', '')
+        config['scores'][id_str].append(note)
     except (TypeError, ValueError, KeyError):
         return 'Submitted data is invalid.'
     config_push(config_name, config)
@@ -217,9 +220,10 @@ def analyze():
     config = config_pull(config_name)
     if not config:
         return 'Config file does not exist.'
-    question_captions = [q.get('caption', 'No caption') for q in config.get('rubric', [])]
+    columns = [q.get('caption', 'No caption') for q in config.get('rubric', [])]
+    columns.append('Notes')
     filenames = config.get('filenames')
-    scores = pd.DataFrame(index=filenames, columns=question_captions)
+    scores = pd.DataFrame(index=filenames, columns=columns)
     for k, v in config.get('scores', {}).items():
         try:
             row_id = int(k) % len(filenames)
