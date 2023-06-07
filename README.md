@@ -5,6 +5,8 @@
 
 ## Usage
 
+**Source code:**
+
 1. Set the project root as the current folder in terminal. 
 2. Activate Python virtual environment if applicable.
 3. Run the following script. 
@@ -20,3 +22,7 @@ It occupies localhost 5000 port by default.
 
 Read the [operation manual](manual.md) to preview software functions.
 
+**Release:**
+
+1. Download and unzip the release.
+2. Open `homework_grader.exe`.

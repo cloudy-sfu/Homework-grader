@@ -3,6 +3,7 @@ import pandas as pd
 from flask import Flask, render_template, request, send_file, redirect
 import os
 import json
+import webbrowser
 
 app = Flask(__name__)
 assignments = './assignments/'
@@ -244,4 +245,5 @@ def analyze():
 
 
 if __name__ == '__main__':
+    webbrowser.open_new_tab('http://localhost:5000')
     app.run()
