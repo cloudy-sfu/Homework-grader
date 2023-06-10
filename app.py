@@ -25,10 +25,10 @@ def config_delete():
     return redirect('/')
 
 
-@app.route('/config-check-name', methods=['GET'])
+@app.route('/config-check-name', methods=['POST'])
 def config_check_name():
-    name = request.args.get('name')
-    base_dir = request.args.get('base_dir')
+    name = request.form.get('name')
+    base_dir = request.form.get('base_dir')
     if not name:
         return 'Name is empty.'
     json_name = re.sub(r'\s', '_', name).lower() + '.json'
@@ -40,8 +40,7 @@ def config_check_name():
         return f'The base directory is empty. Supported file types {supported_file_types}.'
     if os.path.exists(cand_saved_path):
         return 'Config file has already existed.'
-    else:
-        return 'Available.'
+    return config_add()
 
 
 @app.route('/config-add', methods=['POST'])
@@ -50,14 +49,13 @@ def config_add():
     base_dir = request.form.get('base_dir')
     try:
         json_name = re.sub(r'\s', '_', name).lower() + '.json'
-        cand_saved_path = os.path.join(assignments, json_name)
-        if os.path.exists(cand_saved_path):
-            return 'Config file has already existed.'
+        config_path = os.path.join(assignments, json_name)
         config = {
             'base_dir': request.form.get('base_dir'),
             'name': name,
             'rubric': [],
             'scores': {},
+            'notes': {},
             'id': 0,
             'filenames': [fn for fn in os.listdir(base_dir) if os.path.splitext(fn)[1] in supported_file_types]
         }
@@ -79,7 +77,7 @@ def config_add():
                         question['assessment'].append(level)
                 question['assessment'] = sorted(question['assessment'], key=lambda lv: lv['score'], reverse=True)
                 config['rubric'].append(question)
-        with open(cand_saved_path, 'w') as f:
+        with open(config_path, 'w') as f:
             json.dump(config, f, indent=4)
     except (KeyError, ValueError, TypeError):
         return 'Submitted data is invalid.'
@@ -129,14 +127,12 @@ def grade():
     id_ = config.get('id')
     filenames = config.get('filenames')
     n = len(filenames)
-    note = ''
     try:
         scores = config['scores']
         filelist = [(filenames[i], str(i) in scores.keys()) for i in range(n)]
         id_str = str(id_)
         if id_str in scores.keys():
             raw_scores = config['scores'][id_str]
-            note = raw_scores.pop()
             questions = config['rubric']
             scores = []
             for s, q in zip(raw_scores, questions):
@@ -144,6 +140,7 @@ def grade():
                 scores.append((s, s in levels))
         else:
             scores = []
+        note = config['notes'].get(id_str, '')
     except KeyError:
         return 'Config file is invalid.'
     return render_template(
@@ -207,8 +204,9 @@ def grade_submit():
             else:
                 score = float(raw_score)
             config['scores'][id_str].append(score)
-        note = request.form.get('note', '')
-        config['scores'][id_str].append(note)
+        note = request.form.get('note')
+        if note:
+            config['notes'][id_str] = note
     except (TypeError, ValueError, KeyError):
         return 'Submitted data is invalid.'
     config_push(config_name, config)
@@ -222,24 +220,32 @@ def analyze():
     if not config:
         return 'Config file does not exist.'
     columns = [q.get('caption', 'No caption') for q in config.get('rubric', [])]
-    columns.append('Notes')
-    filenames = config.get('filenames')
+    filenames, _ = zip(*map(os.path.splitext, config.get('filenames')))
     scores = pd.DataFrame(index=filenames, columns=columns)
+    notes = pd.DataFrame(index=filenames, columns=['Note'])
     for k, v in config.get('scores', {}).items():
         try:
             row_id = int(k) % len(filenames)
         except ValueError:
             continue
+        scores.iloc[row_id, :] = v
+    for k, v in config.get('notes', {}).items():
         try:
-            scores.iloc[row_id, :] = v
-        except IndexError:
+            row_id = int(k) % len(filenames)
+        except ValueError:
             continue
+        notes['Note'][row_id] = v
     return render_template(
         'analyze.html',
         caption=config.get('name'),
         scores=scores.to_html(
             classes='table table-bordered table-striped',
-            float_format=lambda f: format(f, 'g')
+            float_format=lambda f: format(f, 'g'),
+            na_rep='',
+        ),
+        notes=notes.to_html(
+            classes='table table-bordered table-striped',
+            na_rep='',
         ),
     )
 

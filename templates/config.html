@@ -12,52 +12,51 @@
         <div class="col-md-6">
             <p><a href="/" style="text-decoration: none">Back</a></p>
             <form method="post" action="/config-add" class="alert border-dark">
-                <p>Base directory:</p>
-                <input class="form-control" type="text" name="base_dir" value="{{ base_dir }}" required />
-                <p><i>
-                    The path of a folder containing students' submissions. It can be relative path from
-                    project root (of this software), or absolute path.
-                </i></p>
-                <p>Name:</p>
-                <input class="form-control" type="text" maxlength="64" name="name" value="{{ name }}" required />
-                <p><i>Name of this grading work.</i></p>
-                <p><a type="button" onclick="check_name()" style="text-decoration: none; color: #0d6efd">Check</a></p>
-                <p id="check-name-hint">
-                    {% for question in rubric %}
-                        <div class="alert alert-light" id="question-{{ question.get(q_id) }}">
-                            <p>
-                                <b>Question {{ question.q_id }}</b>
-                                <a type="button" onclick="del_question({{ question.get(q_id) }})" style="text-decoration: none; color: #0d6efd">Remove</a>
-                            </p>
-                            <p>Caption:</p>
-                            <input class="form-control" type="text" maxlength="64" name="caption-{{ question.q_id }}"
-                                   value="{{ question.caption }}"
-                                   required />
-                            <p><i>A short caption, describing what this question is about.</i></p>
-                            <p>Assessment:</p>
-                            <div id="assessment-{{ question.q_id }}">
-                                {% for level in question.assessment %}
-                                    <div class="my-2" id="level-{{ question.q_id }}-{{ loop.index }}">
-                                        <label>Score:</label>
-                                        <a type="button" onclick="del_level({{ question.q_id }}, {{ loop.index }})" style="text-decoration: none; color: #0d6efd">Remove</a>
-                                        <input name="score-{{ question.q_id }}-{{ loop.index }}" type="number"
-                                               step="0.01" class="form-control" value="{{ level.score }}" required />
-                                        <label>Definition:</label>
-                                        <textarea name="def-{{ question.q_id }}-{{ loop.index }}" class="form-control"
-                                                  rows="3" required >{{ level.definition }}</textarea>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <a type="button" onclick="add_level({{ question.q_id }})" style="text-decoration: none; color: #0d6efd">Add level</a>
-                            <p><i>Describe how to assess answers, as a list of (score, definition) pairs.</i></p>
-                        </div>
-                    {% endfor %}
+                <p>
+                    <label>Base directory:</label>
+                    <input class="form-control" type="text" name="base_dir" value="{{ base_dir }}"
+                           required disabled id="base_dir" />
                 </p>
+                <p>
+                    <label>Name:</label>
+                    <input class="form-control" type="text" maxlength="64" name="name" value="{{ name }}"
+                           required disabled id="name" />
+                </p>
+                <p><a type="button" onclick="edit_base_information()" style="text-decoration: none; color: #0d6efd">Edit</a></p>
+                {% for question in rubric %}
+                    <div class="alert alert-light" id="question-{{ question.get(q_id) }}">
+                        <p>
+                            <b>Question {{ question.q_id }}</b>
+                            <a type="button" onclick="del_question({{ question.get(q_id) }})" style="text-decoration: none; color: #0d6efd">Remove</a>
+                        </p>
+                        <p>Caption:</p>
+                        <input class="form-control" type="text" maxlength="64" name="caption-{{ question.q_id }}"
+                               value="{{ question.caption }}"
+                               required />
+                        <p><i>A short caption, describing what this question is about.</i></p>
+                        <p>Assessment:</p>
+                        <div id="assessment-{{ question.q_id }}">
+                            {% for level in question.assessment %}
+                                <div class="my-2" id="level-{{ question.q_id }}-{{ loop.index }}">
+                                    <label>Score:</label>
+                                    <a type="button" onclick="del_level({{ question.q_id }}, {{ loop.index }})" style="text-decoration: none; color: #0d6efd">Remove</a>
+                                    <input name="score-{{ question.q_id }}-{{ loop.index }}" type="number"
+                                           step="0.01" class="form-control" value="{{ level.score }}" required />
+                                    <label>Definition:</label>
+                                    <textarea name="def-{{ question.q_id }}-{{ loop.index }}" class="form-control"
+                                              rows="3" required >{{ level.definition }}</textarea>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <a type="button" onclick="add_level({{ question.q_id }})" style="text-decoration: none; color: #0d6efd">Add level</a>
+                        <p><i>Describe how to assess answers, as a list of (score, definition) pairs.</i></p>
+                    </div>
+                {% endfor %}
                 <hr>
                 <div id="config-add-rubric"></div>
                 <a type="button" onclick="add_question()" style="text-decoration: none; color: #0d6efd">Add question</a>
-                <div class="my-2" id="config-add-submit">
-                    <p>Click "Check" to check availability first.</p>
+                <div class="my-2">
+                    <input class="btn btn-primary" type="submit" onclick="edit_base_information()" value="Save" />
                 </div>
             </form>
         </div>
@@ -66,11 +65,12 @@
     <script>
         function add_question() {
             const rubric_area = document.getElementById('config-add-rubric');
-            const max_q_id = Math.max(
+            let max_q_id = Math.max(
                 ...Array.from(document.querySelectorAll('div')).filter(div => div.id.startsWith('question-')).map(
                     div => parseInt(div.id.split('question-')[1])
                 )
             )
+            if (!isFinite(max_q_id)) {max_q_id = 0;}
             const rubric =
 `<div class="alert alert-light" id="question-${max_q_id+1}">
     <p>
@@ -96,11 +96,12 @@
 
         function add_level(q) {
             const assessment_area = document.getElementById('assessment-' + q);
-            const max_a_id = Math.max(
+            let max_a_id = Math.max(
                 ...Array.from(document.querySelectorAll('div')).filter(div => div.id.startsWith('level-' + q + '-')).map(
                     div => parseInt(div.id.split('level-' + q + '-')[1])
                 )
             )
+            if (!isFinite(max_a_id)) {max_a_id = 0;}
             const level =
 `<div class="my-2" id="level-${q}-${max_a_id+1}">
     <label>Score:</label>
@@ -118,27 +119,9 @@
             level.remove();
         }
 
-        function check_name() {
-            const name = document.getElementsByName('name')[0];
-            const base_dir = document.getElementsByName('base_dir')[0];
-            const hint_widget = document.getElementById('check-name-hint');
-            let request = new XMLHttpRequest();
-            request.onreadystatechange = () => {
-                if (request.readyState === 4 && request.status === 200) {
-                    if (request.response === 'Available.') {
-                        document.getElementById('config-add-submit').innerHTML =
-                            `<input class="btn btn-primary" type="submit" />`;
-                    } else {
-                        document.getElementById('config-add-submit').innerHTML =
-                            `<p>Click "Check" to check availability first.</p>`;
-                        name.value = "";
-                        base_dir.value = "";
-                    }
-                    hint_widget.innerHTML += request.response + "<br>";
-                }
-            }
-            request.open('GET', "/config-check-name?name=" + name.value + "&base_dir=" + base_dir.value, true);
-            request.send();
+        function edit_base_information() {
+            document.getElementById('base_dir').removeAttribute('disabled');
+            document.getElementById('name').removeAttribute('disabled');
         }
     </script>
 
