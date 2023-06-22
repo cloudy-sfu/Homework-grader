@@ -50,6 +50,8 @@ def config_add():
     try:
         json_name = re.sub(r'\s', '_', name).lower() + '.json'
         config_path = os.path.join(assignments, json_name)
+        if not os.path.isdir(base_dir):
+            return 'Directory doesn\'t exist.'
         config = {
             'base_dir': request.form.get('base_dir'),
             'name': name,
@@ -220,7 +222,10 @@ def analyze():
     if not config:
         return 'Config file does not exist.'
     columns = [q.get('caption', 'No caption') for q in config.get('rubric', [])]
-    filenames, _ = zip(*map(os.path.splitext, config.get('filenames')))
+    try:
+        filenames, _ = zip(*map(os.path.splitext, config.get('filenames')))
+    except ValueError:
+        return 'The directory is empty.'
     scores = pd.DataFrame(index=filenames, columns=columns)
     notes = pd.DataFrame(index=filenames, columns=['Note'])
     for k, v in config.get('scores', {}).items():
