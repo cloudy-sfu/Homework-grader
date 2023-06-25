@@ -1,0 +1,100 @@
+{
+    "base_dir": "C:\\Users\\cloudy\\DataGripProjects\\QUN-ML-Scores\\presentation",
+    "name": "QUN ML Presentation",
+    "rubric": [
+        {
+            "q_id": "1",
+            "caption": "\u95ee\u9898\u5b9a\u4e49",
+            "assessment": [
+                {
+                    "score": 5.0,
+                    "definition": "\u8868\u8ff0\u4e86\u5bf9\u95ee\u9898\u7684\u7406\u89e3\uff0c\u5728\u9898\u76ee\u5185\u5bb9\u7684\u57fa\u7840\u4e0a\u4f5c\u51fa\u5ef6\u62d3\uff0c\u8865\u5145\u4e86\u5fc5\u8981\u7684\u6570\u636e\uff0c\u4f5c\u51fa\u5efa\u6a21\u5047\u8bbe\u3002"
+                },
+                {
+                    "score": 3.0,
+                    "definition": "\u8868\u8ff0\u4e86\u5bf9\u95ee\u9898\u7684\u7406\u89e3\uff0c\u5728\u9898\u76ee\u5185\u5bb9\u7684\u57fa\u7840\u4e0a\u4f5c\u51fa\u5ef6\u62d3\uff0c\u4f46\u7f3a\u5c11\u6570\u636e\u6216\u5efa\u6a21\u5047\u8bbe\u3002"
+                },
+                {
+                    "score": 0.0,
+                    "definition": "\u7b80\u5355\u91cd\u590d\u9898\u76ee\u5185\u5bb9\uff0c\u6ca1\u6709\u8868\u8fbe\u5efa\u6a21\u7406\u89e3\u3002"
+                }
+            ]
+        },
+        {
+            "q_id": "2",
+            "caption": "\u7406\u8bba\u65b9\u6cd5",
+            "assessment": [
+                {
+                    "score": 10.0,
+                    "definition": "\u80fd\u591f\u6839\u636e\u95ee\u9898\u7279\u5f81\uff0c\u79d1\u5b66\u5730\u9009\u62e9\u7406\u8bba\u65b9\u6cd5\uff0c\u5e76\u5f62\u6210\u89e3\u51b3\u95ee\u9898\u7684\u5b8c\u6574\u903b\u8f91\uff0c\u8868\u8fbe\u4e86\u81ea\u5df1\u7684\u5b66\u672f\u7406\u89e3\u3002"
+                },
+                {
+                    "score": 6.0,
+                    "definition": "\u80fd\u591f\u5e94\u7528\u4e00\u4e9b\u65b9\u6cd5\u5206\u6790\u95ee\u9898\uff0c\u4f46\u6ca1\u6709\u5f62\u6210\u89e3\u51b3\u95ee\u9898\u7684\u5b8c\u6574\u903b\u8f91\u3002"
+                },
+                {
+                    "score": 2.0,
+                    "definition": "\u5217\u4e3e\u7406\u8bba\u77e5\u8bc6\uff0c\u4e0d\u80fd\u4f53\u73b0\u7406\u89e3\u4e0e\u5e94\u7528\u3002"
+                }
+            ]
+        },
+        {
+            "q_id": "3",
+            "caption": "\u8ba8\u8bba",
+            "assessment": [
+                {
+                    "score": 5.0,
+                    "definition": "\u8ba8\u8bba\u4e86\u6240\u7528\u65b9\u6cd5\u7684\u95ee\u9898\u4e0e\u5c40\u9650\u6027\uff0c\u5e76\u63d0\u51fa\u53ef\u80fd\u7684\u6539\u8fdb\u65b9\u5411\uff0c\u6216\u6b63\u786e\u8bf4\u660e\u4e86\u65e0\u6cd5\u6539\u8fdb\u7684\u539f\u56e0\u3002"
+                },
+                {
+                    "score": 3.0,
+                    "definition": "\u8ba8\u8bba\u4e86\u6240\u7528\u65b9\u6cd5\u7684\u95ee\u9898\u4e0e\u5c40\u9650\u6027\uff0c\u4f46\u6ca1\u6709\u4f5c\u51fa\u8bc1\u660e\u6216\u5c55\u793a\u5f97\u51fa\u7ed3\u8bba\u7684\u4f9d\u636e\u3002"
+                },
+                {
+                    "score": 0.0,
+                    "definition": "\u6ca1\u6709\u5206\u6790\u6240\u7528\u65b9\u6cd5\u7684\u95ee\u9898\u4e0e\u5c40\u9650\u6027\u3002"
+                }
+            ]
+        },
+        {
+            "q_id": "4",
+            "caption": "\u5e94\u7528\u5b9e\u4f8b",
+            "assessment": [
+                {
+                    "score": 10.0,
+                    "definition": "\u5c55\u793a\u4e86\u6bcf\u4e2a\u95ee\u9898\u7684\u5efa\u6a21\u7ed3\u679c\uff0c\u4f7f\u7528\u7f8e\u89c2\u3001\u6b63\u786e\u7684\u56fe\u8868\u5c55\u793a\u6570\u636e\uff0c\u4f7f\u7528\u4e86\u5408\u9002\u7684\u6a21\u578b\u8bc4\u4ef7\u65b9\u6cd5\uff0c\u5f97\u51fa\u6709\u610f\u4e49\u7684\u7ed3\u8bba\u3002"
+                },
+                {
+                    "score": 6.0,
+                    "definition": "\u5c55\u793a\u4e86\u6bcf\u4e2a\u95ee\u9898\u7684\u5efa\u6a21\u7ed3\u679c\uff0c\u4f7f\u7528\u56fe\u8868\u5c55\u793a\u6570\u636e\uff0c\u4f46\u6570\u636e\u53ef\u89c6\u5316\u7684\u65b9\u6cd5\u6709\u6b20\u7f3a\uff0c\u6216\u7f3a\u5c11\u6a21\u578b\u8bc4\u4ef7\u3002"
+                },
+                {
+                    "score": 2.0,
+                    "definition": "\u5efa\u6a21\u7ed3\u679c\u4e0d\u5b8c\u6574\uff0c\u6216\u903b\u8f91\u51cc\u4e71\u3002"
+                }
+            ]
+        }
+    ],
+    "scores": {
+        "0": [
+            5.0,
+            10.0,
+            5.0,
+            10.0
+        ]
+    },
+    "notes": {},
+    "id": 0,
+    "filenames": [
+        "2022360482.pdf",
+        "2022360501.pdf",
+        "2022360512.pdf",
+        "2022360522.pdf",
+        "2022360524.pdf",
+        "2022360533.pdf",
+        "2022360548.pdf",
+        "2022360558.pdf",
+        "2022360577.pdf",
+        "2022360581.pdf"
+    ]
+}

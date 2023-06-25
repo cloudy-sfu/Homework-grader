@@ -18,49 +18,97 @@ def index():  # put application's code here
 
 
 @app.route('/delete-config', methods=['GET'])
-def config_delete():
+def delete_config():
     config_path = os.path.join(assignments, request.args.get('name', ''))
     if os.path.isfile(config_path):
         os.remove(config_path)
     return redirect('/')
 
 
-@app.route('/config-check-name', methods=['POST'])
-def config_check_name():
-    name = request.form.get('name')
-    base_dir = request.form.get('base_dir')
-    if not name:
-        return 'Name is empty.'
-    json_name = re.sub(r'\s', '_', name).lower() + '.json'
+@app.route('/export-config', methods=['GET'])
+def export_config():
+    config_path = os.path.join(assignments, request.args.get('config', ''))
+    if os.path.isfile(config_path):
+        return send_file(config_path, as_attachment=True)
+    else:
+        return redirect('/')
+
+
+@app.route('/import-config', methods=['POST'])
+def import_config():
+    config = request.files['config']
+    json_name = config.filename
     cand_saved_path = os.path.join(assignments, json_name)
-    if not (base_dir and os.path.isdir(base_dir)):
-        return 'The base directory does not exist.'
-    assignment_file_names = [fn for fn in os.listdir(base_dir) if os.path.splitext(fn)[1] in supported_file_types]
-    if not assignment_file_names:
-        return f'The base directory is empty. Supported file types {supported_file_types}.'
     if os.path.exists(cand_saved_path):
         return 'Config file has already existed.'
-    return config_add()
+    config.save(cand_saved_path)
+    return redirect('/')
+
+
+def config_pull(config_name):
+    if not config_name:
+        return
+    config_path = os.path.join(assignments, config_name)
+    if not os.path.isfile(config_path):
+        return
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    return config
+
+
+def config_push(config_name, config_content):
+    if not config_name:
+        return
+    config_path = os.path.join(assignments, config_name)
+    with open(config_path, 'w') as f:
+        json.dump(config_content, f, indent=4)
 
 
 @app.route('/config-add', methods=['POST'])
 def config_add():
     name = request.form.get('name')
+    if not name:
+        return 'Name is empty.'
+    json_name = re.sub(r'\s', '_', name).lower() + '.json'
+    cand_saved_path = os.path.join(assignments, json_name)
+    if os.path.exists(cand_saved_path):
+        return 'Config file has already existed.'
+    config = {'base_dir': '', 'name': name, 'rubric': [], 'scores': {}, 'notes': {},
+              'id': 0, 'filenames': []}
+    config_push(json_name, config)
+    return redirect('/')
+
+
+@app.route('/config-check-name', methods=['POST'])
+def config_check_name():
+    config_name = request.form.get('config_name')
+    config = config_pull(config_name)
+    if not config:
+        return 'Config doesn\'t exist.'
     base_dir = request.form.get('base_dir')
+    if not (base_dir and os.path.isdir(base_dir)):
+        return 'The base directory does not exist.'
+    config['base_dir'] = base_dir
+    assignment_file_names = [fn for fn in os.listdir(base_dir) if os.path.splitext(fn)[1] in supported_file_types]
+    if not assignment_file_names:
+        return f'The base directory is empty. Supported file types {supported_file_types}.'
+    config["filenames"] = assignment_file_names
+    rebuild = request.form.get('rebuild')
+    if rebuild:
+        config['scores'] = {}
+        config['notes'] = {}
+    config_push(config_name, config)
+    return redirect('/')
+
+
+@app.route('/config-rubric', methods=['POST'])
+def config_rubric():
+    config_name = request.form.get('config_name')
+    config = config_pull(config_name)
+    if not config:
+        return 'Config doesn\'t exist.'
     try:
-        json_name = re.sub(r'\s', '_', name).lower() + '.json'
-        config_path = os.path.join(assignments, json_name)
-        if not os.path.isdir(base_dir):
-            return 'Directory doesn\'t exist.'
-        config = {
-            'base_dir': request.form.get('base_dir'),
-            'name': name,
-            'rubric': [],
-            'scores': {},
-            'notes': {},
-            'id': 0,
-            'filenames': [fn for fn in os.listdir(base_dir) if os.path.splitext(fn)[1] in supported_file_types]
-        }
+        config['rubric'] = []
         for caption in request.form.keys():
             if caption.startswith('caption-'):
                 q_id = caption.removeprefix('caption-')
@@ -79,34 +127,10 @@ def config_add():
                         question['assessment'].append(level)
                 question['assessment'] = sorted(question['assessment'], key=lambda lv: lv['score'], reverse=True)
                 config['rubric'].append(question)
-        with open(config_path, 'w') as f:
-            json.dump(config, f, indent=4)
     except (KeyError, ValueError, TypeError):
         return 'Submitted data is invalid.'
+    config_push(config_name, config)
     return redirect('/')
-
-
-def config_pull(config_name):
-    if not config_name:
-        return
-    config_path = os.path.join(assignments, config_name)
-    if not os.path.isfile(config_path):
-        return
-    with open(config_path, 'r') as f:
-        config = json.load(f)
-    if not config:
-        os.remove(config_path)
-    return config
-
-
-def config_push(config_name, config_content):
-    if not config_name:
-        return
-    config_path = os.path.join(assignments, config_name)
-    if not os.path.isfile(config_path):
-        return
-    with open(config_path, 'w') as f:
-        json.dump(config_content, f, indent=4)
 
 
 @app.route('/config-fork', methods=['GET'])
@@ -116,7 +140,8 @@ def config_fork():
     if not config:
         return 'Config file does not exist.'
     return render_template(
-        'config.html', rubric=config.get('rubric'), name=config.get('name'), base_dir=config.get('base_dir'),
+        'config.html', rubric=config.get('rubric'), display_name=config.get('name'),
+        config_name=config_name,
     )
 
 

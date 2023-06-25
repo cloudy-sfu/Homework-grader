@@ -9,25 +9,27 @@
 </head>
 <body class="container-md">
     <div class="row alert justify-content-center">
-        <div class="col-md-6">
-            <p><a href="/" style="text-decoration: none">Back</a></p>
-            <form method="post" action="/config-add" class="alert border-dark">
-                <p>
-                    <label>Base directory:</label>
-                    <input class="form-control" type="text" name="base_dir" value="{{ base_dir }}"
-                           required disabled id="base_dir" />
-                </p>
-                <p>
-                    <label>Name:</label>
-                    <input class="form-control" type="text" maxlength="64" name="name" value="{{ name }}"
-                           required disabled id="name" />
-                </p>
-                <p><a type="button" onclick="edit_base_information()" style="text-decoration: none; color: #0d6efd">Edit</a></p>
+        <div class="col-md-3 fixed-top">
+            <ul class="alert nav flex-column">
+                <li class="nav-item"><span class="nav-link disabled fw-bold">Questions</span></li>
                 {% for question in rubric %}
-                    <div class="alert alert-light" id="question-{{ question.get(q_id) }}">
+                <li class="nav-item">
+                    <a class="nav-link" href="#question-{{ question.q_id }}">{{ question.caption }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <p class="text-center fw-bold">{{ display_name }}</p>
+            <p><a href="/" style="text-decoration: none">Back</a></p>
+            <form method="post" action="/config-rubric" class="alert border-dark">
+                <input type="hidden" name="config_name" value="{{ config_name }}" />
+                <div id="config-add-rubric">
+                {% for question in rubric %}
+                    <div class="alert alert-light" id="question-{{ question.q_id }}">
                         <p>
                             <b>Question {{ question.q_id }}</b>
-                            <a type="button" onclick="del_question({{ question.get(q_id) }})" style="text-decoration: none; color: #0d6efd">Remove</a>
+                            <a type="button" onclick="del_question({{ question.q_id }})" style="text-decoration: none; color: #0d6efd">Remove</a>
                         </p>
                         <p>Caption:</p>
                         <input class="form-control" type="text" maxlength="64" name="caption-{{ question.q_id }}"
@@ -52,8 +54,7 @@
                         <p><i>Describe how to assess answers, as a list of (score, definition) pairs.</i></p>
                     </div>
                 {% endfor %}
-                <hr>
-                <div id="config-add-rubric"></div>
+                </div>
                 <a type="button" onclick="add_question()" style="text-decoration: none; color: #0d6efd">Add question</a>
                 <div class="my-2">
                     <input class="btn btn-primary" type="submit" onclick="edit_base_information()" value="Save" />

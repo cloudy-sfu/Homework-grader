@@ -10,11 +10,11 @@
 <body class="container-md">
     <div class="row alert justify-content-center">
         <div class="col-md-12">
+            <p class="text-center fw-bold">{{ caption }}</p>
             <p><a href="/" style="text-decoration: none">Back</a></p>
-            <p class="text-center"><b>{{ caption }}</b></p>
-            <p>Scores</p>
+            <p class="fw-bold">Scores</p>
             {{ scores | safe }}
-            <p>Notes</p>
+            <p class="fw-bold">Notes</p>
             {{ notes | safe }}
         </div>
     </div>
