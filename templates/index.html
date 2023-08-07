@@ -6,110 +6,56 @@
     <title>Homework Grader</title>
     <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
 </head>
 <body class="container-md d-flex flex-column justify-content-between" style="height: 100vh;">
     <div class="alert mb-0 row">
         <div class="col-md-12">
             <h1 class="text-center">Homework Grader</h1>
-            <p class="text-danger fw-bold">
-                This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
-            </p>
             <p>
                 <button type="button" class="btn btn-light me-2" data-bs-toggle="modal" data-bs-target="#add-config">
                     New
                 </button>
-                <button type="button" class="btn btn-light me-2" data-bs-toggle="modal" data-bs-target="#import-config">
-                    Import
-                </button>
             </p>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Assignment</th>
-                        <th colspan="4">Actions</th>
-                        <th colspan="2">Config</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for config in existed_configs %}
-                    <tr>
-                        <td>{{ config }}</td>
-                        <td>
-                            <a href="/config-fork?config={{ config }}" style="text-decoration: none;">
-                                Rubric
-                            </a>
-                        </td>
-                        <td class="text-nowrap">
-                            <a href="#" style="text-decoration: none;" data-bs-toggle="modal" data-bs-target="#link-to-files-{{ loop.index }}">
-                                Link to files
-                            </a>
-                        </td>
-                        <td>
-                            <a href="/grade?config={{ config }}" style="text-decoration: none;">
-                                Grading
-                            </a>
-                        </td>
-                        <td>
-                            <a href="/analyze?config={{ config }}" style="text-decoration: none;">
-                                Scores
-                            </a>
-                        </td>
-                        <td>
-                            <a type="button" data-bs-toggle="modal" data-bs-target="#delete-config" style="text-decoration: none; color: #0d6efd;" onclick="confirm_deletion('{{ config }}')">
-                                Delete
-                            </a>
-                        </td>
-                        <td>
-                            <a href="/export-config?config={{ config }}" style="text-decoration: none;">
-                                Export
-                            </a>
-                        </td>
-                    </tr>
-                    <div class="modal fade" id="link-to-files-{{ loop.index }}" tabindex="-1" aria-labelledby="link-to-files-{{ loop.index }}-label" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="link-to-files-{{ loop.index }}-label">Link to files</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <form method="post" action="/config-check-name">
-                                    <div class="modal-body">
-                                        <input type="hidden" name="config_name" value="{{ config }}" />
-                                        <p>
-                                            <label>Base directory:</label>
-                                            <input class="form-control" type="text" name="base_dir" value="{{ base_dir }}" required />
-                                            <i>
-                                                The path of a folder containing students' submissions. It can be relative path from project root (of this software), or absolute path.
-                                            </i>
-                                        </p>
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                Clear existed scores and comments.
-                                            </label>
-                                            <input class="form-check-input" type="checkbox" name="rebuild" checked />
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <input type="submit" class="btn btn-primary" value="Save" />
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+            <div class="row">
+                {% for cfg_id, cfg_name in existed_configs %}
+                <div class="col-md-6">
+                    <div class="alert alert-light">
+                        <h5 class="card-title">{{ cfg_name }}</h5>
+                        <ul class="nav gap-2">
+                            <li class="nav-item">
+                                <span style="display: block; padding: var(--bs-nav-link-padding-y) 0;">Actions:</span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/rubric?id={{ cfg_id }}">Rubric</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/grade?id={{ cfg_id }}">Grading</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/analyze?id={{ cfg_id }}">Score</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" type="button" data-bs-toggle="modal" data-bs-target="#delete-config"
+                                   onclick="confirm_deletion('{{ cfg_id }}', '{{ cfg_name }}')">
+                                    Delete
+                                </a>
+                            </li>
+                        </ul>
                     </div>
-                    {% endfor %}
-                </tbody>
-            </table>
+                </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
+            <p class="text-danger fw-bold">
+                This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+            </p>
             <p class="text-secondary">
-                Powered by
-                <a href="https://github.com/cloudy-sfu" style="text-decoration: none;" target="_blank">
-                    cloudy-sfu
-                </a>
-                , 2023.
+                &copy; <a href="https://github.com/cloudy-sfu" style="text-decoration: none;">cloudy-sfu</a> 2023
             </p>
         </div>
         <div class="modal fade" id="delete-config" tabindex="-1" aria-labelledby="delete-config-label" aria-hidden="true">
@@ -139,6 +85,13 @@
                                 <label>Name:</label>
                                 <input class="form-control" type="text" maxlength="64" name="name" required />
                             </p>
+                            <p>
+                                <a href="" style="text-decoration: none;" id="base_dir_1">Select base directory</a><br>
+                                Select a folder, which contains students' submissions, using the popped-up file
+                                selector.
+                            </p>
+                            <input id="base_dir" class="form-control" type="text" name="base_dir" readonly required />
+                            <p id="base_dir_2"></p>
                         </div>
                         <div class="modal-footer">
                             <input type="submit" class="btn btn-primary" value="Save" />
@@ -166,10 +119,26 @@
             </div>
         </div>
         <script>
-            function confirm_deletion(name) {
-                document.getElementById("deletion-sender").href = "/delete-config?name=" + name;
+            function confirm_deletion(cfg_id, name) {
+                document.getElementById("deletion-sender").href = "/delete-config?id=" + cfg_id;
                 document.getElementById("deletion-filename").innerText = name;
             }
+            document.getElementById('base_dir_1').addEventListener('click', (e) => {
+                e.preventDefault();
+                $.ajax({
+                    type: 'GET',
+                    url: '/select-base-directory',
+                    success: (r) => {
+                        if (r['error'] === 0) {
+                            document.getElementById('base_dir').value = r['base_dir'];
+                        }
+                        document.getElementById('base_dir_2').innerText = r['message'];
+                    },
+                    fail: () => {
+                        document.getElementById('base_dir_2').innerText = 'Cannot detect files in your computer.';
+                    }
+                });
+            });
         </script>
     </div>
 </body>

@@ -7,7 +7,7 @@ block_cipher = None
 a = Analysis(
     ['app.py'],
     pathex=[],
-    binaries=[('templates', 'templates')],
+    binaries=[('templates', 'templates'), ('sql', 'sql')],
     datas=[],
     hiddenimports=[],
     hookspath=[],
