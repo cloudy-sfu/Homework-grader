@@ -1,9 +1,13 @@
 import json
 import os
 import sqlite3
+import string
 import webbrowser
+from ctypes import windll
+
 import pandas as pd
 from flask import Flask, render_template, request, send_file, redirect
+
 from winapi import select_folder
 
 
@@ -38,6 +42,60 @@ if not os.path.exists(config_db):
 with open("sql/check_files_scored.sql", "r") as f:
     check_files_scored = f.read()
 
+username = os.environ['username']
+home = os.path.abspath(f'C:\\Users\\{username}\\')
+# reference: https://stackoverflow.com/questions/827371/is-there-a-way-to-list-all-the-available-windows-drives
+drives = []
+bitmask = windll.kernel32.GetLogicalDrives()
+for letter in string.ascii_uppercase:
+    drive_root_path = str(letter + ':')
+    if bitmask & 1:
+        drives.append((drive_root_path, drive_root_path))
+    bitmask >>= 1
+# reference end
+
+
+def get_folder(path):
+    path_split = path.split('\\')
+    path_cascade = []
+    for i in range(len(path_split)):
+        path_cascade.append((
+            path_split[i],
+            r'\\'.join(path_split[:i+1])
+        ))
+    if path.endswith(':'):  # root directory of a disk
+        # os.listdir('C:') will return current folder
+        # os.listdir('C:\\') is correct
+        path += '\\'
+    if os.path.isdir(path):
+        sub_folders = []
+        isdir = True
+        try:
+            for x in os.listdir(path):
+                x_full_path = r'\\'.join(path_split) + r'\\' + x
+                if os.path.isdir(x_full_path) or os.path.isfile(x_full_path):
+                    sub_folders.append((x, x_full_path))
+        except PermissionError:
+            sub_folders = None
+            isdir = False
+    elif os.path.isfile(path):
+        sub_folders = None
+        isdir = False
+    else:
+        sub_folders = None
+        isdir = False
+    return {'path_cascade': path_cascade, 'sub_folders': sub_folders, 'isdir': isdir,
+            'current_folder': path, 'drives': drives}
+
+
+@app.route('/fs', methods=['GET'])
+def cd():
+    path = request.args.get('path', type=str, default=home)
+    container_id = request.args.get('container_id', type=str)
+    kwargs = get_folder(path)
+    return render_template(
+        'fs_widget.html', container_id=container_id, web_path='/fs', **kwargs)
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -67,7 +125,7 @@ def config_add():
         write_sql(config_db, "INSERT INTO assignments (assignment_name) VALUES (?)", name)
     agn_id = read_sql(config_db, "SELECT assignment_id FROM assignments WHERE assignment_name = ?", name, one=True)
     agn_id = agn_id[0]
-    base_dir = request.form.get('base_dir')
+    base_dir = request.form.get('assessment_path')
     if not (base_dir and os.path.isdir(base_dir)):
         return 'The base directory doesn\'t exist.'
     for fn in os.listdir(base_dir):

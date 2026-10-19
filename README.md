@@ -1,8 +1,8 @@
 # Homework grader
  Customize, manage templates of rubrics and fast grade HTML/PDF files
 
-![](https://shields.io/badge/dependencies-Python_3.11-blue)
-![](https://shields.io/badge/OS-Windows_Vista_+-green)
+![](https://shields.io/badge/dependencies-Python_3.14-blue)
+![](https://shields.io/badge/OS-Windows_11-skyblue)
 
 ## Usage
 

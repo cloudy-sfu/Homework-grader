@@ -7,6 +7,7 @@
     <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+    <script src="/static/fs_initialize.js"></script>
 </head>
 <body class="container-md d-flex flex-column justify-content-between" style="height: 100vh;">
     <div class="alert mb-0 row">
@@ -49,97 +50,85 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <p class="text-danger fw-bold">
-                This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
-            </p>
-            <p class="text-secondary">
-                &copy; <a href="https://github.com/cloudy-sfu" style="text-decoration: none;">cloudy-sfu</a> 2023
-            </p>
-        </div>
-        <div class="modal fade" id="delete-config" tabindex="-1" aria-labelledby="delete-config-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="delete-config-label">Confirmation</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">Are you sure to delete <span id="deletion-filename"></span>?</div>
-                    <div class="modal-footer">
-                        <a type="button" href="" id="deletion-sender" class="btn btn-danger">Yes, I'm sure.</a>
-                    </div>
+    <div class="modal fade" id="delete-config" tabindex="-1" aria-labelledby="delete-config-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="delete-config-label">Confirmation</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">Are you sure to delete <span id="deletion-filename"></span>?</div>
+                <div class="modal-footer">
+                    <a type="button" href="" id="deletion-sender" class="btn btn-danger">Yes, I'm sure.</a>
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="add-config" tabindex="-1" aria-labelledby="add-config-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="add-config-label">New Assignment</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" action="/config-add">
-                        <div class="modal-body">
-                            <p>
-                                <label>Name:</label>
-                                <input class="form-control" type="text" maxlength="64" name="name" required />
-                            </p>
-                            <p>
-                                <a href="" style="text-decoration: none;" id="base_dir_1">Select base directory</a><br>
-                                Select a folder, which contains students' submissions, using the popped-up file
-                                selector.
-                            </p>
-                            <input id="base_dir" class="form-control" type="text" name="base_dir" readonly required />
-                            <p id="base_dir_2"></p>
-                        </div>
-                        <div class="modal-footer">
-                            <input type="submit" class="btn btn-primary" value="Save" />
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="import-config" tabindex="-1" aria-labelledby="import-config-label" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="import-config-label">Import Assignment</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form method="post" action="/import-config" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <input type="file" name="config" accept="application/activity+json" />
-                        </div>
-                        <div class="modal-footer">
-                            <input type="submit" class="btn btn-primary" value="Save" />
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <script>
-            function confirm_deletion(cfg_id, name) {
-                document.getElementById("deletion-sender").href = "/delete-config?id=" + cfg_id;
-                document.getElementById("deletion-filename").innerText = name;
-            }
-            document.getElementById('base_dir_1').addEventListener('click', (e) => {
-                e.preventDefault();
-                $.ajax({
-                    type: 'GET',
-                    url: '/select-base-directory',
-                    success: (r) => {
-                        if (r['error'] === 0) {
-                            document.getElementById('base_dir').value = r['base_dir'];
-                        }
-                        document.getElementById('base_dir_2').innerText = r['message'];
-                    },
-                    fail: () => {
-                        document.getElementById('base_dir_2').innerText = 'Cannot detect files in your computer.';
-                    }
-                });
-            });
-        </script>
     </div>
+    <div class="modal fade" id="add-config" tabindex="-1" aria-labelledby="add-config-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="add-config-label">New Assignment</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="config-add">
+                    <div class="modal-body">
+                        <p>
+                            <label>Name:</label>
+                            <input class="form-control" type="text" maxlength="64" name="name" required />
+                        </p>
+                        <p>Select the folder, which contains students' submissions.</p>
+                        <div id="assessment" class="my-4"></div>
+                        <script>bind_fs('/fs?container_id=assessment');</script>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="Save" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="import-config" tabindex="-1" aria-labelledby="import-config-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="import-config-label">Import Assignment</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" action="/import-config" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="file" name="config" accept="application/activity+json" />
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" class="btn btn-primary" value="Save" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function confirm_deletion(cfg_id, name) {
+            document.getElementById("deletion-sender").href = "/delete-config?id=" + cfg_id;
+            document.getElementById("deletion-filename").innerText = name;
+        }
+        $('#config-add').submit(function (event) {
+            event.preventDefault();
+            const form = $(this);
+            let data = form.serializeArray();
+            data.push({'name': 'assessment_path', 'value': get_path_fs('assessment')});
+            $.ajax({
+                type: 'POST',
+                url: `/config-add`,
+                timeout: 1000,
+                data: data, // Serialize the form data
+                success: () => {
+                    window.location.href = "/";
+                },
+                error: (response) => {
+                    console.log(response.responseText);
+                }
+            });
+        })
+    </script>
 </body>
 </html>

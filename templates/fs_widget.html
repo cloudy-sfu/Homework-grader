@@ -1,0 +1,47 @@
+<nav class="nav mx-2">
+    <current_folder hidden>{{ current_folder }}</current_folder>
+    <li class="nav-item dropdown">
+        <div class="nav-link dropdown-toggle" data-bs-toggle="dropdown"
+             role="button" aria-expanded="false">
+            Volume
+        </div>
+        <ul class="dropdown-menu" style="max-height: 50vh; overflow-y: auto;
+        max-width: var(--window-width); overflow-x: auto;">
+            {% for name, full_path in drives %}
+                <li><a class="dropdown-item" type="button"
+                     onclick="bind_fs('{{ web_path }}?container_id={{ container_id }}&path={{ full_path | safe }}')">
+                  {{ name }}
+                </a></li>
+            {% endfor %}
+            <li><a class="dropdown-item" type="button" 
+                   onclick="bind_fs('{{ web_path }}?container_id={{ container_id }}')">
+                Home
+            </a></li>
+        </ul>
+    </li>
+    {% for name, full_path in path_cascade %}
+        <a type="button" class="nav-link p-2"
+           onclick="bind_fs('{{ web_path }}?container_id={{ container_id }}&path={{ full_path | safe }}')">
+            {{ name }}
+        </a>
+        {% if (not loop.last) or isdir %}
+        <span class="nav-link text-dark p-2">/</span>
+        {% endif %}
+    {% endfor %}
+    {% if isdir %}
+        <li class="nav-item dropdown">
+            <div class="nav-link" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                <input type="text" oninput="filter_dropdown(this)">
+            </div>
+            <ul class="dropdown-menu" style="max-height: 50vh; overflow-y: auto;
+            max-width: var(--window-width); overflow-x: auto;">
+{% for name, full_path in sub_folders %}
+    <li><a class="dropdown-item" type="button"
+         onclick="bind_fs('{{ web_path }}?container_id={{ container_id }}&path={{ full_path | safe }}')">
+      {{ name }}
+    </a></li>
+{% endfor %}
+            </ul>
+        </li>
+    {% endif %}
+</nav>
